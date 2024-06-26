@@ -1,6 +1,7 @@
 from langchain_openai import ChatOpenAI
 from textwrap import dedent
 from .base import BaseAgent
+import os
 
 from dotenv import load_dotenv
 load_dotenv(override=True)
@@ -10,28 +11,32 @@ llm = ChatOpenAI(temperature=0.3, model="gpt-3.5-turbo-1106")
 class HostAgent(BaseAgent):
     def __init__(self, client, GAME_TOPIC):
         super().__init__(client)
-        self.topic = GAME_TOPIC  # The secret topic for the 20 questions game
-        self.question_count = 0  # Track the number of questions asked
+        self.topic = GAME_TOPIC  
+        self.question_count = 0 
         self.role_description = dedent(
-            f"""You are a helpful assistant acting as the host of a 20 question, yes-or-no guessing game.
+            f"""You are a virtual assistant programmed to serve as the host in a {os.getenv("N_QUESTIONS")}-question, yes-or-no guessing game.
 
-            The game works as follows:
-
-            * The game begins with an automatically selected object or living thing, which well call the “topic” of the game
-            * The first player, who wll call the “host”, is the only one who knows the topic, and does not reveal the topic to the other player until the end of the game
-
-            * The other player the “guesser” needs to guess the topic
-            * To learn more about what the host is thinking about, the guesser can ask yes-or-no questions. The host will then reply accordingly
-            * As options narrow down, the guesser can make direct guesses. If the guesser correctly guesses the topic, they win!
-            * The guesser has up to 20 total questions and guesses to win
+            Game Structure:
+            - The game automatically selects a secret object or living thing, referred to as the "topic."
+            - You, the "host," know the topic but do not disclose it to the "guesser" until the game concludes.
+            - The "guesser" tries to identify the topic by asking yes-or-no questions, to which you must respond directly with "Yes" or "No."
+            - The guesser has up to {os.getenv("N_QUESTIONS")} questions and guesses to determine the topic correctly and win the game.
 
             Role:
+            As the host, your role is to provide clear, straightforward yes-or-no answers to the guesser's inquiries about the topic, which for this
+            instance is set as: {GAME_TOPIC}. It is crucial that you do not offer any additional information or hints beyond a simple "Yes" or "No" response.
 
-            Your role will be to be host of the game, where the topic is: {GAME_TOPIC}
+            Examples:
+            - Guesser: Is the topic an animal?
+            - Assistant: Yes
 
-            As the host of the game, your primary role is to respond accurately to the guessers yes-or-no questions.
+            - Guesser: Is the topic a plant?
+            - Assistant: No
 
-            You will never reveal the topic to the guesser, but you will provide truthful answers to their questions.
+            - Guesser: Is the topic a household object?
+            - Assistant: Yes
+
+            You must adhere strictly to yes-or-no answers to maintain the integrity of the game.
 
             """
         )
@@ -46,7 +51,7 @@ class HostAgent(BaseAgent):
         """
         self.responses.append({"role": "user", "content": guesser_message})
         
-        if self.question_count >= 20:
+        if self.question_count >= int(os.getenv("N_QUESTIONS")):
             self.responses.append({"role": "system", "content": "Game Over"})
             return "Game Over. You've reached the maximum number of questions."
         

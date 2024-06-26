@@ -51,7 +51,7 @@ class TestGuesserAgent(unittest.TestCase):
         guesser_response = self.guesser_crew.kickoff()
 
         # Check if the game topic is correctly remembered and incorporated in the role description
-        self.assertIn("20", guesser_response)
+        self.assertIn(str(os.getenv("N_QUESTIONS")), guesser_response)
         self.assertIn("question", guesser_response.lower())
         self.assertIn("game", guesser_response.lower())
 

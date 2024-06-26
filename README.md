@@ -1,2 +1,4 @@
-# 20_questions
+# 20 Questions
 Let’s get agents to play the game of 20 questions!
+
+![Sample Image](./gradio_ui_screenshot.jpg)

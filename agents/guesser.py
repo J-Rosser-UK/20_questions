@@ -14,10 +14,10 @@ llm=ChatCohere(temperature=0.3)
 
 def GuesserAgent():
     return Agent(
-        role='Guesser of a 20 Question Guessing Game',
-        goal='To correctly guess the topic of the game by asking yes or no questions to the host and making guesses each round.',
+        role=f'Guesser of a {os.getenv("N_QUESTIONS")} Question Guessing Game',
+        goal=f'To correctly guess the topic of the game by asking yes or no questions to the host and making guesses each round.',
         backstory=dedent(f"""
-            You will be playing the game of 20 questions.
+            You will be playing the game of {os.getenv("N_QUESTIONS")} questions.
 
             The game works as follows:
 
@@ -27,7 +27,7 @@ def GuesserAgent():
             * The other player – the “guesser” – needs to guess the topic
             * To learn more about what the host is thinking about, the guesser can ask yes-or-no questions. The host will then reply accordingly
             * As options narrow down, the guesser can make direct guesses. If the guesser correctly guesses the topic, they win!
-            * The guesser has up to 20 total questions and guesses to win
+            * The guesser has up to {os.getenv("N_QUESTIONS")} total questions and guesses to win
 
             Role:
 
@@ -42,10 +42,10 @@ def GuesserAgent():
 def GuesserTask(guesser: Agent, history):
     return Task(
         description=(dedent(f"""
-            As the guesser in a game of 20 questions, your role is to determine the secret topic
+            As the guesser in a game of {os.getenv("N_QUESTIONS")} questions, your role is to determine the secret topic
             chosen by the host. The topic can be any object or living thing. You will ask a single
             yes-or-no question each round to narrow down the possibilities and make informed guesses.
-            Remember, you have up to 20 questions and guesses combined to identify the topic but you
+            Remember, you have up to {os.getenv("N_QUESTIONS")} questions and guesses combined to identify the topic but you
             must only ask ONE yes-or-no question each round. Be strategic in your questioning and guessing.
             Use strategic questions to efficiently narrow down the potential options.
 
@@ -62,10 +62,10 @@ def GuesserTask(guesser: Agent, history):
 
 def PlanningAgent():
     return Agent(
-        role='Planner for a 20 Question Guessing Game',
-        goal='To develop strategies and determine the next best question to ask in the game based on previous chat interactions',
-        backstory=dedent("""
-            This agent is designed to assist in planning and strategizing the game of 20 questions.
+        role=f'Planner for a {os.getenv("N_QUESTIONS")} Question Guessing Game',
+        goal=f'To develop strategies and determine the next best question to ask in the game based on previous chat interactions',
+        backstory=dedent(f"""
+            This agent is designed to assist in planning and strategizing the game of {os.getenv("N_QUESTIONS")} questions.
             It analyzes the game's progress, the host's responses, and the guesser's questions to recommend the
             next strategic question to narrow down the possibilities effectively.
         """),
@@ -77,8 +77,8 @@ def PlanningAgent():
 def PlanningTask(planner:Agent):
     # Planning Task
     return Task(
-        description=(dedent("""
-            Analyze the chat history so far in a game of 20 questions and plan the next best step.
+        description=(dedent(f"""
+            Analyze the chat history so far in a game of {os.getenv("N_QUESTIONS")} questions and plan the next best step.
             Your task is to recommend the next question to be asked by the guesser that will most effectively
             narrow down the possibilities based on previous responses.
         """)),

@@ -8,25 +8,24 @@ load_dotenv(override=True)
 
 
 
-def start_conversation(topic, api_key=None):
-    if api_key:
-        client = OpenAI(api_key)
-    else:
-        client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-    
+def start_conversation(topic:str, api_key:str = None):
+
+    # Initialize the conversation
     convo = []
+
+    # Initialize the OpenAI client with the given API key or from environment variables
+    client = OpenAI(api_key=api_key) if (api_key and len(api_key) > 0) else OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    
+    # Initialize the topic of the conversation
     if not topic or len(topic) == 0:
         topic = "Pencil"
         convo.append((f"No topic provided, setting default topic to '{topic}'.", None))
-        
         yield convo
 
-    host = HostAgent(client = client, GAME_TOPIC=topic)
-    guesser = PlanningAgent()
+    # Initialize the conversation
+    conversation = Conversation(client, topic)
 
-    conversation = Conversation(host, guesser)
-
-    
+    # Start the conversation
     for (host_msg, guesser_msg) in conversation.run_conversation():
 
         if host_msg:
@@ -39,6 +38,7 @@ def start_conversation(topic, api_key=None):
 
 
 with gr.Blocks() as game:
+
     gr.Markdown("# 20 Question Guessing Game Between Two Agents")
 
     with gr.Row():

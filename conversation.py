@@ -1,12 +1,16 @@
 import time
 from crewai import Crew, Process
-import cohere
-from agents.guesser import GuesserTask, PlanningTask
+from openai import OpenAI
+from agents.guesser import *
+from agents.host import *
+import os
 
 class Conversation:
-    def __init__(self, host, guesser):
-        self.host = host
-        self.guesser_agent = guesser
+
+    def __init__(self, client:OpenAI, topic:str):
+
+        self.host = HostAgent(client = client, GAME_TOPIC=topic)
+        self.guesser_agent = PlanningAgent()
         
         
         guesser_task = GuesserTask(
@@ -16,13 +20,13 @@ class Conversation:
 
         
         self.guesser_crew = Crew(
-            agents=[guesser],
+            agents=[self.guesser_agent],
             tasks=[guesser_task],
             process=Process.sequential,  
             memory=True,
             cache=True,
             max_rpm=100,
-            manager_agent=guesser
+            manager_agent=self.guesser_agent
         )
 
 
@@ -35,7 +39,7 @@ class Conversation:
             yield self.host.history[-1]["content"] + f" {self.host.topic}", None  
 
             self.previous_msg = "Start the game."
-            for round in range(0,20):  
+            for round in range(0,int(os.getenv("N_QUESTIONS"))):  
                 for host_response, guesser_response in self.round():
                     
                     yield host_response, guesser_response

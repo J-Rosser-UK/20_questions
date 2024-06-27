@@ -5,6 +5,9 @@ import unittest
 from agents.guesser import GuesserAgent, PlanningAgent, PlanningTask, GuesserTask
 from crewai import Crew, Process, Task
 from textwrap import dedent
+import inflect
+inflect_engine = inflect.engine()
+
 import os
 from dotenv import load_dotenv
 load_dotenv(override=True)
@@ -50,8 +53,9 @@ class TestGuesserAgent(unittest.TestCase):
         # Retrieve the response from the crew
         guesser_response = self.guesser_crew.kickoff()
 
+
         # Check if the game topic is correctly remembered and incorporated in the role description
-        self.assertIn(str(os.getenv("N_QUESTIONS")), guesser_response)
+        self.assertTrue(str(os.getenv("N_QUESTIONS")) in guesser_response.lower() or inflect_engine.number_to_words(os.getenv("N_QUESTIONS")) in guesser_response.lower())
         self.assertIn("question", guesser_response.lower())
         self.assertIn("game", guesser_response.lower())
 

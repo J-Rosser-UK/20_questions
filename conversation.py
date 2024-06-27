@@ -10,8 +10,10 @@ class Conversation:
 
     def __init__(self, client:OpenAI, topic:str):
 
-        self.host = HostAgent(client = client, GAME_TOPIC=topic)
+        llm = ChatOpenAI(temperature=0.3, model="gpt-3.5-turbo-1106")
+        self.host = HostAgent(client = client, topic=topic)
         self.guesser_crew = GuesserCrew()
+        
 
 
     def run_conversation(self):
@@ -43,21 +45,20 @@ class Conversation:
 
 
         # Guesser asks a question
-        guesser_response = self.call_crew_with_backoff()
+        guesser_response = self.guesser_crew.run(self.host.history)
         self.host.add_message("guesser", guesser_response)
         self.previous_msg = guesser_response
         yield None, guesser_response
+
+
+    def mlflow_log(self):
+        """
+            The MLflow logging is decoupled from the core functionality, ensuring that the class can be fully utilized 
+            without the need for MLflow. All MLflow logging functionalities are contained within separate methods and 
+            are called explicitly when needed.
+        """
+        self.host.mlflow_log()
+        self.guesser_crew.mlflow_log()
+
            
-    def call_crew_with_backoff(self):
-        for i in range(1, 10):
-            try:
-                guesser_response = self.guesser_crew.run(self.host.history)
-                print("guesser_response: ", guesser_response)
-                if not guesser_response or "limited to 10 API calls / minute" in guesser_response:
-                    raise Exception("Crew call failed")
-                return guesser_response
-            except Exception as e:
-                print(f"Attempt {i} failed with error: {e}")
-                
-            time.sleep(10*i)
-        raise Exception("Crew call failed after 3 attempts")
+    

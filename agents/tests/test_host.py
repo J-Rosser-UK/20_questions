@@ -12,18 +12,16 @@ class TestHostAgent(unittest.TestCase):
     def setUp(self):
         
         self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-        self.game_topic = "Elephant"
-        self.agent = HostAgent(self.client, GAME_TOPIC=self.game_topic)
+        self.topic = "Elephant"
+        self.agent = HostAgent(self.client, topic=self.topic)
 
-    def test_agent_remembers_game_topic(self):
+    def test_agent_remembers_topic(self):
         """ Test if the agent can remember the game topic."""
         
         response = self.agent.get_response("The game has ended. What was the game topic? ")
 
-        self.assertIn(self.game_topic, response)
+        self.assertIn(self.topic, response)
 
     
-
-
 if __name__ == "__main__":
     unittest.main()

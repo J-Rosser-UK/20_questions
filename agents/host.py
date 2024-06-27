@@ -2,19 +2,21 @@ from langchain_openai import ChatOpenAI
 from textwrap import dedent
 from .base import BaseAgent
 import os
+import mlflow
 
 from dotenv import load_dotenv
 load_dotenv(override=True)
 
-llm = ChatOpenAI(temperature=0.3, model="gpt-3.5-turbo-1106")
+
 
 class HostAgent(BaseAgent):
-    def __init__(self, client, GAME_TOPIC):
+
+    def __init__(self, client, topic):
         super().__init__(client)
-        self.topic = GAME_TOPIC  
+        self.topic = topic  
         self.question_count = 0 
-        self.role_description = dedent(
-            f"""You are a virtual assistant programmed to serve as the host in a {os.getenv("N_QUESTIONS")}-question, yes-or-no guessing game.
+        self.role_description = dedent(f"""
+            You are a virtual assistant programmed to serve as the host in a {os.getenv("N_QUESTIONS")}-question, yes-or-no guessing game.
 
             Game Structure:
             - The game automatically selects a secret object or living thing, referred to as the "topic."
@@ -24,7 +26,7 @@ class HostAgent(BaseAgent):
 
             Role:
             As the host, your role is to provide clear, straightforward yes-or-no answers to the guesser's inquiries about the topic, which for this
-            instance is set as: {GAME_TOPIC}. It is crucial that you do not offer any additional information or hints beyond a simple "Yes" or "No" response.
+            instance is set as: {topic}. It is crucial that you do not offer any additional information or hints beyond a simple "Yes" or "No" response.
 
             Examples:
             - Guesser: Is the topic an animal?
@@ -36,13 +38,14 @@ class HostAgent(BaseAgent):
             - Guesser: Is the topic a household object?
             - Assistant: Yes
 
-            You must adhere strictly to yes-or-no answers to maintain the integrity of the game.
-
-            """
-        )
-        assert GAME_TOPIC in self.role_description
+            You must adhere strictly to yes-or-no answers to maintain the integrity of the game.  
+        """)
+        assert topic in self.role_description
 
         self.responses = [{"role": "system", "content": self.role_description}]
+
+        
+
 
     def get_response(self, guesser_message):
         """
@@ -66,5 +69,15 @@ class HostAgent(BaseAgent):
             return response.choices[0].message.content
         else:
             return "An error occurred. Please try asking your question again."
+        
+    def mlflow_log(self):
+        """
+            The MLflow logging is decoupled from the core functionality, ensuring that the class can be fully utilized 
+            without the need for MLflow. All MLflow logging functionalities are contained within separate methods and 
+            are called explicitly when needed.
+        """
+
+        mlflow.log_text(self.role_description, artifact_file="host_agent_role_description.txt")
+
 
     

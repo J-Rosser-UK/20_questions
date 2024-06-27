@@ -18,7 +18,7 @@ class TestConversation(unittest.TestCase):
         client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
         self.topic = "Pencil"
         
-        self.mock_host = HostAgent(client = client, GAME_TOPIC=self.topic)
+        self.mock_host = HostAgent(client = client, topic=self.topic)
         self.mock_host.history = []
         self.mock_host.add_message = Mock()
 

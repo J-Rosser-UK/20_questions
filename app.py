@@ -1,40 +1,49 @@
 import gradio as gr
 from conversation import Conversation
-from agents import HostAgent, GuesserAgent, PlanningAgent
 from openai import OpenAI
 import os
+import mlflow
 from dotenv import load_dotenv
 load_dotenv(override=True)
 
 
 
 def start_conversation(topic:str, api_key:str = None):
+    # Set the tracking URI to the `mlruns` directory
+    mlflow.set_tracking_uri("file:./mlruns")
 
-    # Initialize the conversation
-    convo = []
+    # Set the experiment name
+    experiment_name = "Gradio Conversation"
+    mlflow.set_experiment(experiment_name)
 
-    # Initialize the OpenAI client with the given API key or from environment variables
-    client = OpenAI(api_key=api_key) if (api_key and len(api_key) > 0) else OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-    
-    # Initialize the topic of the conversation
-    if not topic or len(topic) == 0:
-        topic = "Pencil"
-        convo.append((f"No topic provided, setting default topic to '{topic}'.", None))
-        yield convo
+    with mlflow.start_run():
 
-    # Initialize the conversation
-    conversation = Conversation(client, topic)
+        # Initialize the conversation
+        convo = []
 
-    # Start the conversation
-    for (host_msg, guesser_msg) in conversation.run_conversation():
-
-        if host_msg:
-            print("host_msg: ", host_msg)
-        if guesser_msg:
-            print("guesser_msg: ", guesser_msg)
+        # Initialize the OpenAI client with the given API key or from environment variables
+        client = OpenAI(api_key=api_key) if (api_key and len(api_key) > 0) else OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
         
-        convo.append((host_msg, guesser_msg))
-        yield convo
+        # Initialize the topic of the conversation
+        if not topic or len(topic) == 0:
+            topic = "Pencil"
+            convo.append((f"No topic provided, setting default topic to '{topic}'.", None))
+            yield convo
+
+        # Initialize the conversation
+        conversation = Conversation(client, topic)
+        conversation.mlflow_log()
+
+        # Start the conversation
+        for (host_msg, guesser_msg) in conversation.run_conversation():
+
+            if host_msg:
+                print("host_msg: ", host_msg)
+            if guesser_msg:
+                print("guesser_msg: ", guesser_msg)
+            
+            convo.append((host_msg, guesser_msg))
+            yield convo
 
 
 with gr.Blocks() as game:

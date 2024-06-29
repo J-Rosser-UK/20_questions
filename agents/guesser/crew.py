@@ -35,6 +35,9 @@ class GuesserCrew:
             max_rpm=100,
             
         )
+
+        self.guesses = []
+        self.questions = []
         
 
     def run(self, conversation_history):
@@ -49,8 +52,16 @@ class GuesserCrew:
         )
 
         self.crew.tasks = [make_a_guess, plan_and_ask_a_question]
+
+        
         
         result = self.crew.kickoff()
+
+        self.questions.append(result)
+
+        # Append the guess from the make_a_guess callback to the guesses list
+        if self.tasks.current_guess:
+            self.guesses.append(self.tasks.current_guess)
 
         return result
 

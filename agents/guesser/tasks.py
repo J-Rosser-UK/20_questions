@@ -12,9 +12,13 @@ class GuesserTasks:
 
     def __init__(self, senior_question_writer_and_planner, senior_analyst, manager):
         
+        self.current_guess = None
+        
         self._initialize_plan_and_ask_a_question_task(senior_question_writer_and_planner)
 
         self._initialize_make_a_guess_task(senior_analyst, self.plan_and_ask_a_question_task)
+
+        
 
 
     def _initialize_plan_and_ask_a_question_task(self, senior_question_writer_and_planner):
@@ -94,7 +98,8 @@ class GuesserTasks:
         return self.make_a_guess_task
     
     def make_a_guess_callback(self, output):
-        print("The guesser has made a guess. The guesser's guess is: ", output.exported_output)
+        self.current_guess = output.exported_output
+        print("The guesser has made a guess. The guesser's guess is: ", self.current_guess)
 
     def get_tasks(self):
         return [self.make_a_guess_task, self.plan_and_ask_a_question_task]

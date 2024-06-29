@@ -2,7 +2,7 @@
 *env
 /env
 */env
-
+*jina-reranker-v1-tiny-en/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

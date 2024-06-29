@@ -33,7 +33,7 @@ class Conversation:
             print(f"An error occurred: {e}")
             yield "An error occurred: ", None
             
-        yield "Conversation ended.", None
+        yield f"Conversation ended. \nGuesses list: {self.guesser_crew.guesses} \nQuestions list: {self.guesser_crew.questions}", None
 
         
 

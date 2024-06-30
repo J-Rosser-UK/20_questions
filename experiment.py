@@ -34,7 +34,7 @@ mlflow.set_experiment(experiment_name)
 
 def topic():
     """Generator function to yield game topics from a file."""
-    with open("coco_objects.txt", "r", encoding="utf-8") as f:
+    with open("data/coco_objects.txt", "r", encoding="utf-8") as f:
         for i, line in enumerate(f):
             # if i > 2:
             #     break

@@ -29,8 +29,7 @@ class GuesserCrew:
             agents=[self.senior_question_writer_and_planner, self.senior_analyst, self.manager],
             tasks=[plan_and_ask_a_question],
             process=Process.sequential,
-            memory=True,
-            cache=True,
+            memory=False,
             verbose=False,
             max_rpm=100,
             

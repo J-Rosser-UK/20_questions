@@ -5,8 +5,9 @@ import os
 import mlflow
 from dotenv import load_dotenv
 load_dotenv(override=True)
+from eval.evaluate import Evaluate
 
-
+eval = Evaluate()
 
 def start_conversation(topic:str, api_key:str = None):
     # Set the tracking URI to the `mlruns` directory
@@ -44,6 +45,12 @@ def start_conversation(topic:str, api_key:str = None):
             
             convo.append((host_msg, guesser_msg))
             yield convo
+        
+        try:
+            eval.mlflow_log(conversation.host.topic, conversation.guesser_crew.guesses, conversation.guesser_crew.questions)
+        except Exception as e:
+            print(f"A mlflow error occurred: {e}")
+            yield f"A mlflow error occurred: {e}", None
 
 
 with gr.Blocks() as game:

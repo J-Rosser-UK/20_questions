@@ -81,13 +81,23 @@ class GuesserTasks:
 
     def plan_and_ask_a_question(self, conversation_history):
         """ Update the conversation history in the description of the plan_and_ask_a_question task and return the task."""
-
+        print("conversation_history: ", conversation_history)
         self.plan_and_ask_a_question_task.description = self.plan_and_ask_a_question_description.format(
             n_questions=os.getenv("N_QUESTIONS"),
-            conversation_history=conversation_history
+            conversation_history=self._format_conversation_history(conversation_history)
         )
 
         return self.plan_and_ask_a_question_task
+    
+    def _format_conversation_history(self, conversation):
+        
+        result = []
+        for entry in conversation:
+            role = entry['role']
+            content = entry['content']
+            result.append(f"{role}: {content}")
+        return "\n".join(result)
+
     
     def make_a_guess(self, plan_and_ask_a_question_task):
         """ Update the description of the make_a_guess task with the plan_and_ask_a_question task and return the task."""
